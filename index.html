@@ -1,0 +1,81 @@
+<!DOCTYPE html><html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Таймер</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: black; color: white; font-family: Arial, sans-serif; text-align: center; }
+        #timer-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
+        #timer { font-size: 6rem; font-weight: bold; }
+        button { padding: 10px 20px; font-size: 1.5rem; margin-top: 20px; cursor: pointer; }
+        #canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: none; }
+    </style>
+</head>
+<body>
+    <div id="timer-container">
+        <input type="number" id="minutes" placeholder="Минуты" style="font-size: 2rem; width: 100px;">
+        <button onclick="startTimer()">Старт</button>
+        <div id="timer">00:00</div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <script>
+        let timeLeft, interval;
+        const timerDisplay = document.getElementById("timer");
+        const container = document.getElementById("timer-container");
+        const canvas = document.getElementById("canvas");
+        const ctx = canvas.getContext("2d");function startTimer() {
+        let minutes = document.getElementById("minutes").value;
+        if (!minutes || minutes <= 0) return;
+        timeLeft = minutes * 60;
+        document.getElementById("minutes").style.display = "none";
+        document.querySelector("button").style.display = "none";
+        updateTimer();
+        interval = setInterval(updateTimer, 1000);
+    }
+    
+    function updateTimer() {
+        if (timeLeft <= 0) {
+            clearInterval(interval);
+            timerDisplay.textContent = "00:00";
+            startParticles();
+            return;
+        }
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        timeLeft--;
+    }
+    
+    function startParticles() {
+        canvas.style.display = "block";
+        let particles = [];
+        function Particle() {
+            this.x = Math.random() * canvas.width;
+            this.y = Math.random() * canvas.height;
+            this.vx = (Math.random() - 0.5) * 4;
+            this.vy = (Math.random() - 0.5) * 4;
+            this.size = Math.random() * 5 + 2;
+            this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        }
+        for (let i = 0; i < 100; i++) {
+            particles.push(new Particle());
+        }
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    }
+</script>
+
+</body>
+</html>
