@@ -14,39 +14,28 @@
             top: 10%; 
             left: 50%; 
             transform: translateX(-50%); 
-            opacity: 0.3;
             text-shadow: 4px 4px 10px rgba(255, 255, 255, 0.5), -4px -4px 10px rgba(255, 255, 255, 0.5);
         }
         button { padding: 10px 20px; font-size: 1.5rem; margin-top: 20px; cursor: pointer; }
-        #canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: none; pointer-events: none; }
-        .picker-container { display: flex; gap: 10px; }
-        .picker { font-size: 2rem; padding: 5px; width: 80px; text-align: center; }
+        #canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; }
     </style>
 </head>
 <body>
     <div id="timer">00:00</div>
     <div id="timer-container">
-        <div class="picker-container">
-            <input type="number" id="minutes" class="picker" min="0" max="99" value="0"> мин
-            <input type="number" id="seconds" class="picker" min="0" max="59" value="0"> сек
-        </div>
         <button onclick="startTimer()">Старт</button>
     </div>
     <canvas id="canvas"></canvas>
     <script>
         let timeLeft, interval;
         const timerDisplay = document.getElementById("timer");
-        const container = document.getElementById("timer-container");
         const canvas = document.getElementById("canvas");
         const ctx = canvas.getContext("2d");
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;function startTimer() {
-        let minutes = parseInt(document.getElementById("minutes").value) || 0;
-        let seconds = parseInt(document.getElementById("seconds").value) || 0;
-        if (minutes === 0 && seconds === 0) return;
+        let minutes = 0;
+        let seconds = 30;
         timeLeft = minutes * 60 + seconds;
-        document.getElementById("minutes").style.display = "none";
-        document.getElementById("seconds").style.display = "none";
         document.querySelector("button").style.display = "none";
         document.documentElement.requestFullscreen().catch(err => console.log(err));
         updateTimer();
@@ -57,42 +46,29 @@
         if (timeLeft <= 0) {
             clearInterval(interval);
             timerDisplay.textContent = "00:00";
-            startParticles();
             return;
         }
         let minutes = Math.floor(timeLeft / 60);
         let seconds = timeLeft % 60;
         timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
         timeLeft--;
+        drawBeams();
     }
     
-    function startParticles() {
-        canvas.style.display = "block";
-        let particles = [];
-        function Particle() {
-            this.x = Math.random() * canvas.width;
-            this.y = Math.random() * canvas.height;
-            this.vx = (Math.random() - 0.5) * 4;
-            this.vy = (Math.random() - 0.5) * 4;
-            this.size = Math.random() * 5 + 2;
-            this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    function drawBeams() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        let targetX = canvas.width / 2;
+        let targetY = canvas.height * 0.2;
+        for (let i = 0; i < 10; i++) {
+            let sourceX = Math.random() * canvas.width;
+            let sourceY = Math.random() * canvas.height;
+            ctx.strokeStyle = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            ctx.lineWidth = Math.random() * 3 + 1;
+            ctx.beginPath();
+            ctx.moveTo(sourceX, sourceY);
+            ctx.lineTo(targetX, targetY);
+            ctx.stroke();
         }
-        for (let i = 0; i < 100; i++) {
-            particles.push(new Particle());
-        }
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                ctx.fillStyle = p.color;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                ctx.fill();
-            });
-            requestAnimationFrame(animate);
-        }
-        animate();
     }
 </script>
 
