@@ -5,18 +5,23 @@
     <title>Таймер</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: black; color: white; font-family: Arial, sans-serif; text-align: center; }
-        #timer-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; }
-        #timer { font-size: 6rem; font-weight: bold; }
+        body { background: black; color: white; font-family: Arial, sans-serif; text-align: center; overflow: hidden; }
+        #timer-container { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; position: absolute; width: 100vw; }
+        #timer { font-size: 6rem; font-weight: bold; position: fixed; top: 10%; left: 50%; transform: translateX(-50%); opacity: 0.3; }
         button { padding: 10px 20px; font-size: 1.5rem; margin-top: 20px; cursor: pointer; }
-        #canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: none; }
+        #canvas { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; display: none; pointer-events: none; }
+        .picker-container { display: flex; gap: 10px; }
+        .picker { font-size: 2rem; padding: 5px; width: 80px; text-align: center; }
     </style>
 </head>
 <body>
+    <div id="timer">00:00</div>
     <div id="timer-container">
-        <input type="number" id="minutes" placeholder="Минуты" style="font-size: 2rem; width: 100px;">
+        <div class="picker-container">
+            <input type="number" id="minutes" class="picker" min="0" max="99" value="0"> мин
+            <input type="number" id="seconds" class="picker" min="0" max="59" value="0"> сек
+        </div>
         <button onclick="startTimer()">Старт</button>
-        <div id="timer">00:00</div>
     </div>
     <canvas id="canvas"></canvas>
     <script>
@@ -24,13 +29,17 @@
         const timerDisplay = document.getElementById("timer");
         const container = document.getElementById("timer-container");
         const canvas = document.getElementById("canvas");
-        const ctx = canvas.getContext("2d");function startTimer() {
-        let minutes = document.getElementById("minutes").value;
-        if (!minutes || minutes <= 0) return;
-        timeLeft = minutes * 60;
+        const ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;function startTimer() {
+        let minutes = parseInt(document.getElementById("minutes").value) || 0;
+        let seconds = parseInt(document.getElementById("seconds").value) || 0;
+        if (minutes === 0 && seconds === 0) return;
+        timeLeft = minutes * 60 + seconds;
         document.getElementById("minutes").style.display = "none";
+        document.getElementById("seconds").style.display = "none";
         document.querySelector("button").style.display = "none";
-        document.documentElement.requestFullscreen();
+        document.documentElement.requestFullscreen().catch(err => console.log(err));
         updateTimer();
         interval = setInterval(updateTimer, 1000);
     }
