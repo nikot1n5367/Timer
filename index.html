@@ -30,6 +30,7 @@
         timeLeft = minutes * 60;
         document.getElementById("minutes").style.display = "none";
         document.querySelector("button").style.display = "none";
+        document.documentElement.requestFullscreen();
         updateTimer();
         interval = setInterval(updateTimer, 1000);
     }
